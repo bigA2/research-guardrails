@@ -1,0 +1,13 @@
+{
+ "topic": "Guardrails for an AI workflow builder",
+ "question": "How to build and TEST guardrails for an AI product that turns natural-language requests into automation workflows: prompt-injection defence, output validation, tool/permission allow-lists, PII redaction, jailbreak test suites, and continuous evaluation \u00e2\u20ac\u201d with open-source tools and their licences?",
+ "queries": [
+  "llm guardrails",
+  "prompt injection detection",
+  "llm red teaming",
+  "llm evaluation framework"
+ ],
+ "urls": [
+  "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+ ]
+}
