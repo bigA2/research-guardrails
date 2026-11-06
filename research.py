@@ -27,7 +27,9 @@ def ask(prompt, maxtok=900):
 sources = []
 for q in T.get("queries", []):
     s = get(f"https://api.github.com/search/repositories?q={urllib.parse.quote(q)}&sort=stars&per_page=4", H)
-    for it in (json.loads(s).get("items", []) if s else []):
+    try: items = json.loads(s).get("items", []) if s else []
+    except Exception: items = []
+    for it in items:
         rd = get(f"https://api.github.com/repos/{it['full_name']}/readme", {**H, "Accept": "application/vnd.github.raw"})
         if rd: sources.append((f"https://github.com/{it['full_name']} ({it.get('license') and it['license'].get('spdx_id')}, {it['stargazers_count']}★)", rd))
 for u in T.get("urls", []):
