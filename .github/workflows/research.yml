@@ -1,0 +1,20 @@
+name: research
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+  models: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Research with GitHub Models (free tier, no stored keys)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 research.py
+      - name: Save report
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898732+github-actions[bot]@users.noreply.github.com"
+          git add out/REPORT.md && git commit -m "research report $(date -u +%F-%H%M)" && git push || echo "nothing new"
