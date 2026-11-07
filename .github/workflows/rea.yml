@@ -1,0 +1,37 @@
+# REA (Reverse Engineer Anything, morluto/rea, MIT; npm rea-agents pinned) static breakdown of an OPEN-SOURCE automation
+# dashboard front end. No AI keys, no secrets: REA's analyze-javascript-application is static analysis. Output: rea/${{ inputs.out }}.md.
+name: rea
+on:
+  workflow_dispatch:
+    inputs:
+      repo: {description: "owner/name of the open-source target", required: true}
+      path: {description: "front-end folder inside it", required: true}
+      out: {description: "report name", required: true}
+permissions: {contents: write}
+jobs:
+  rea:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: install pinned REA (no install scripts)
+        run: mkdir -p /tmp/rea && cd /tmp/rea && npm init -y >/dev/null && npm i --ignore-scripts rea-agents@6.5.0 >/dev/null && ls node_modules/rea-agents/scripts | head
+      - name: sparse-clone target
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/${{ inputs.repo }} /tmp/target
+          cd /tmp/target && git sparse-checkout set ${{ inputs.path }}
+      - name: run REA
+        run: |
+          mkdir -p rea
+          node /tmp/rea/node_modules/rea-agents/scripts/rea.mjs analyze-javascript-application /tmp/target/${{ inputs.path }} --format md > rea/REA_raw.md 2> rea/rea.err || true
+          { echo "# REA breakdown: ${{ inputs.repo }} / ${{ inputs.path }}"; echo; echo "Tool: rea-agents@6.5.0 (morluto/rea, MIT), static analysis, $(date -u +%F)."; echo;
+            echo "## Routes / pages found"; grep -rhoE "path: *['\"][^'\"]+['\"]" /tmp/target/${{ inputs.path }} --include=*.ts --include=*.tsx --include=*.vue 2>/dev/null | sort -u | head -150;
+            echo; echo "## Settings / billing / api-key / usage files"; find /tmp/target/${{ inputs.path }} -type f \( -iname '*setting*' -o -iname '*billing*' -o -iname '*api*key*' -o -iname '*usage*' -o -iname '*plan*' -o -iname '*member*' -o -iname '*template*' \) | sed 's#/tmp/target/##' | head -150;
+            echo; echo "## REA output (trimmed)"; head -c 200000 rea/REA_raw.md; } > rea/${{ inputs.out }}.md
+          rm -f rea/REA_raw.md; wc -c rea/${{ inputs.out }}.md; tail -3 rea/rea.err || true
+      - name: save
+        run: |
+          git config user.name github-actions; git config user.email github-actions@users.noreply.github.com
+          git add rea && git commit -m "REA breakdown of ${{ inputs.repo }}" && git pull --rebase && git push
