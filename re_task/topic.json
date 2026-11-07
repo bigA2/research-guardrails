@@ -1,0 +1,15 @@
+{
+ "topic": "Secure per-user API key design",
+ "question": "How to design per-user API keys that are hard to leak/crack: format (prefix + id + random secret, checksum like GitHub's), entropy, hashing at rest (SHA-256/HMAC with pepper vs argon2), show-once, scopes, per-plan rate limits, rotation/expiry, revoke, last-used, secret-scanning partner patterns, IP restrictions, audit logs, constant-time compare, tenant isolation with RLS. Cite real implementations (GitHub tokens, Stripe keys, Unkey, Supabase).",
+ "queries": [
+  "unkey api key",
+  "api key management open source",
+  "github token format checksum"
+ ],
+ "urls": [
+  "https://github.blog/engineering/platform-security/behind-githubs-new-authentication-token-formats/",
+  "https://docs.stripe.com/keys",
+  "https://www.unkey.com/docs/introduction",
+  "https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html"
+ ]
+}
